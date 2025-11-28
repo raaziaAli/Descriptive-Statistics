@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Descriptive Statistics – Interactive Visualizations</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card-bg: #ffffff;
+      --accent: #2563eb;
+      --accent-soft: #e0edff;
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --border-soft: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: radial-gradient(circle at top, #eef2ff 0, #f9fafb 45%, #f3f4f6 100%);
+      color: var(--text-main);
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 16px 40px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    header h1 {
+      font-size: clamp(1.8rem, 3vw, 2.3rem);
+      margin: 0 0 8px;
+    }
+
+    header p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 0.98rem;
+    }
+
+    .tagline {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: 0.8rem;
+      margin-bottom: 8px;
+    }
+
+    .tagline span:first-child {
+      font-size: 1.1rem;
+    }
+
+    h2.section-title {
+      font-size: 1.2rem;
+      margin: 24px 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #111827;
+    }
+
+    h2.section-title span.icon {
+      font-size: 1.3rem;
+    }
+
+    .section-subtitle {
+      margin: 0 0 14px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 14px 14px 12px;
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.15s ease, box-shadow 0.15s ease,
+        border-color 0.15s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+      border-color: #bfdbfe;
+    }
+
+    .card-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      margin: 0 0 4px;
+      color: #111827;
+    }
+
+    .card-desc {
+      margin: 0 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      background: var(--accent-soft);
+      color: #1d4ed8;
+      white-space: nowrap;
+    }
+
+    .card a {
+      margin-top: auto;
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid #bfdbfe;
+      font-size: 0.8rem;
+      text-decoration: none;
+      color: var(--accent);
+      background: #eff6ff;
+      transition: background 0.15s ease, border-color 0.15s ease,
+        transform 0.15s ease;
+    }
+
+    .card a:hover {
+      background: #dbeafe;
+      border-color: #60a5fa;
+      transform: translateY(-1px);
+    }
+
+    .card a span.icon {
+      font-size: 0.95rem;
+    }
+
+    footer {
+      margin-top: 32px;
+      padding-top: 12px;
+      border-top: 1px solid #e5e7eb;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 20px 12px 28px;
+      }
+      footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="tagline">
+        <span>📈</span> <span>Middle School Descriptive Statistics</span>
+      </div>
+      <h1>Descriptive Statistics – Interactive Visualizations</h1>
+      <p>
+        Explore standard deviation, IQR, variability, histograms, dot plots, and
+        box plots through interactive HTML pages.
+      </p>
+    </header>
+
+    <!-- STANDARD DEVIATION SECTION -->
+    <section>
+      <h2 class="section-title">
+        <span class="icon">σ</span> Standard Deviation & Variability
+      </h2>
+      <p class="section-subtitle">
+        These activities help students see how standard deviation describes the
+        spread of data.
+      </p>
+
+      <div class="grid">
+        <article class="card">
+          <div>
+            <div class="card-label">Concept + Visuals</div>
+            <h3 class="card-title">Standard Deviation & Variability</h3>
+            <p class="card-desc">
+              Introductory visualization linking standard deviation to how
+              tightly or widely data are spread.
+            </p>
+            <div class="pill-row">
+              <span class="pill">Standard deviation</span>
+              <span class="pill">Spread</span>
+            </div>
+          </div>
+          <a href="Standard Deviation and Variability.html">
+            <span class="icon">🔗</span><span>Open visualization</span>
+          </a>
+        </article>
+
+        <article class="card">
+          <div>
+            <div class="card-label">Quick Look</div>
+            <h3 class="card-title">SD – Histogram Quicklook</h3>
+            <p class="card-desc">
+              Histograms showing how small vs. large standard deviations change
+              the shape of a distribution.
+            </p>
+            <div class="pill-row">
+              <span class="pill">Histogram</span>
+              <span class="pill">SD comparison</span>
+            </div>
+          </div>
+          <a href="SD-Histogram-Quicklookhtml.html">
+            <span class="icon">📊</span><span>View histograms</span>
+          </a>
+        </article>
+
+        <article class="card">
+          <div>
+            <div class="card-label">Quick Look</div>
+            <h3 class="card-title">SD – Box Plot Quicklook</h3>
+            <p class="card-desc">
+              Box plots for different standard deviations to compare spread and
+              identify variability.
+            </p>
+            <div class="pill-row">
+              <span class="pill">Box plots</span>
+              <span class="pill">Spread</span>
+            </div>
+          </div>
+          <a href="SD-Boxplot-Quicklook.html">
+            <span class="icon">📦</span><span>View box plots</span>
+          </a>
+        </article>
+
+        <article class="card">
+          <div>
+            <div class="card-label">Deeper Dive</div>
+            <h3 class="card-title">Standard Deviations & Box Plots</h3>
+            <p class="card-desc">
+              A combined exploration of standard deviation, box plots, and what
+              they tell us about a dataset.
+            </p>
+            <div class="pill-row">
+              <span class="pill">SD</span>
+              <span class="pill">Box plots</span>
+              <span class="pill">Data stories</span>
+            </div>
+          </div>
+          <a href="Standard Deviations and Box Plots.html">
+            <span class="icon">📈</span><span>Open activity</span>
+          </a>
+        </article>
+      </div>
+    </section>
+
+    <!-- IQR & NON-SYMMETRIC SECTION -->
+    <section>
+      <h2 class="section-title">
+        <span class="icon">📦</span> IQR & Non-Symmetric Data
+      </h2>
+      <p class="section-subtitle">
+        Focus on skewed data and the interquartile range as a measure of
+        variability that resists outliers.
+      </p>
+
+      <div class="grid">
+        <article class="card">
+          <div>
+            <div class="card-label">Non-Symmetric Data</div>
+            <h3 class="card-title">Variability of Non-Symmetrical Data</h3>
+            <p class="card-desc">
+              Investigate how variability looks when the data are skewed rather
+              than symmetric.
+            </p>
+            <div class="pill-row">
+              <span class="pill">Skewed data</span>
+              <span class="pill">Variability</span>
+            </div>
+          </div>
+          <a href="Variability of Non Symmetrical Data.html">
+            <span class="icon">📉</span><span>Explore activity</span>
+          </a>
+        </article>
+
+        <article class="card">
+          <div>
+            <div class="card-label">IQR & Spread</div>
+            <h3 class="card-title">
+              IQR – Variability in Non-Symmetric Data
+            </h3>
+            <p class="card-desc">
+              Shows how the interquartile range captures the spread of the
+              middle 50% of values in a skewed distribution.
+            </p>
+            <div class="pill-row">
+              <span class="pill">IQR</span>
+              <span class="pill">Middle 50%</span>
+            </div>
+          </div>
+          <a href="IQR-Variabilityy-NonSymmetricData.html">
+            <span class="icon">🔍</span><span>Open visualization</span>
+          </a>
+        </article>
+
+        <!-- If you have the combined IQR histogram file in the repo, this card will work.
+             If not, you can delete this card or change the href. -->
+        <article class="card">
+          <div>
+            <div class="card-label">Comparison</div>
+            <h3 class="card-title">IQR & Three Histogram Comparison</h3>
+            <p class="card-desc">
+              Compare small, medium, and large IQR using overlapping histograms
+              to visualize how spread changes.
+            </p>
+            <div class="pill-row">
+              <span class="pill">IQR</span>
+              <span class="pill">Three datasets</span>
+              <span class="pill">Histograms</span>
+            </div>
+          </div>
+          <a href="iqr_three_histograms_interactive.html">
+            <span class="icon">🧪</span><span>Compare spreads</span>
+          </a>
+        </article>
+      </div>
+    </section>
+
+    <footer>
+      <span>Descriptive Statistics • Interactive resources for middle school learners</span>
+      <span>Published via GitHub Pages: Descriptive-Statistics</span>
+    </footer>
+  </div>
+</body>
+</html>
