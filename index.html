@@ -196,7 +196,7 @@
   </style>
 </head>
 <body>
-  <nav class="mac-topnav" role="navigation" aria-label="Main navigation">
+<nav class="mac-topnav" role="navigation" aria-label="Main navigation">
   <a href="https://raaziaali.github.io/" class="mac-home-btn" aria-label="Back to Mrs. Ali's Classroom home">
     <svg class="mac-home-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M19 12H5M12 19l-7-7 7-7"/>
@@ -263,29 +263,17 @@
 <script>
   (function() {
     function hideLegacyBackLinks() {
-      var patterns = [
-        /^\s*(\u2190|<-|\u2039|\u00ab|\u2039\u2039|\u2190+|<+)\s*back/i,
-        /^\s*back\s+to\b/i,
-        /^\s*back\s*(home|$)/i,
-        /^\s*home\s*$/i,
-        /portal\s*$/i,
-        /back\s+to\s+portal/i,
-        /back\s+to\s+home/i,
-        /return\s+to/i,
-        /all\s+tools/i
-      ];
-      var links = document.querySelectorAll('a, button');
+      var portalUrlPattern = /(math-interactives\/index\.html|\/Algebra-1\/?$|\/Algebra-1\/index\.html|\/Congruence-and-Similarity\/?$|\/Congruence-and-Similarity\/index\.html|\/Descriptive-Statistics\/?$|\/Descriptive-Statistics\/index\.html|\/Self-Regulation-Teacher-Tools\/?$|\/Self-Regulation-Teacher-Tools\/index\.html)/i;
+      var backTextPattern = /(back\s+to\s+(portal|home|main|classroom)|return\s+to|all\s+tools)/i;
+      var links = document.querySelectorAll('a');
       for (var i = 0; i < links.length; i++) {
         var el = links[i];
         if (el.classList.contains('mac-home-btn')) continue;
         if (el.closest && el.closest('.mac-topnav')) continue;
+        var href = el.getAttribute('href') || '';
         var text = (el.textContent || '').trim();
-        if (!text) continue;
-        for (var j = 0; j < patterns.length; j++) {
-          if (patterns[j].test(text)) {
-            el.setAttribute('data-mac-legacy-hidden', 'true');
-            break;
-          }
+        if (portalUrlPattern.test(href) || backTextPattern.test(text)) {
+          el.setAttribute('data-mac-legacy-hidden', 'true');
         }
       }
     }
@@ -296,6 +284,9 @@
     }
   })();
 </script>
+
+
+  
   <div class="page">
     <header>
       <div class="tagline">
