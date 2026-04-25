@@ -2,194 +2,271 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>IQR &amp; Three Histograms — Comparing Variability</title>
+  <title>IQR, Histogram, and Spread Relationship</title>
   <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
 
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
+      margin: 20px;
       background: #f7f7f7;
-    }
-    .content-wrap {
-      padding: 20px;
-      max-width: 1400px;
-      margin: 0 auto;
     }
     h1 {
       margin-bottom: 4px;
-      color: #1e3a8a;
     }
-    .subtitle {
-      color: #555;
-      margin-top: 0;
-      margin-bottom: 18px;
-    }
-
-    /* The three charts row */
-    .charts-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin-bottom: 16px;
-    }
-    @media (max-width: 900px) {
-      .charts-row { grid-template-columns: 1fr; }
-    }
-    .chart-card {
-      background: #ffffff;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 10px;
-    }
-    .chart-card h2 {
-      margin: 2px 6px 8px;
-      font-size: 15px;
+    .top-layout {
       display: flex;
-      align-items: center;
-      gap: 8px;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 10px;
     }
-    .chart-card h2 .dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-    .chart-card .label {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 100px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      margin-left: auto;
-    }
-    .chart-card .plot-area {
-      height: 340px;
-    }
-    .card-a h2 .dot { background: #3b82f6; }
-    .card-a .label  { background: #dbeafe; color: #1e3a8a; }
-    .card-b h2 .dot { background: #f59e0b; }
-    .card-b .label  { background: #fef3c7; color: #92400e; }
-    .card-c h2 .dot { background: #dc2626; }
-    .card-c .label  { background: #fee2e2; color: #991b1b; }
-
-    /* Stats comparison table */
-    .stats-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 14px;
+    #chart {
+      flex: 2 1 0;
+      height: 500px;
       background: #ffffff;
       border: 1px solid #ddd;
       border-radius: 8px;
-      overflow: hidden;
+    }
+    #stats-box {
+      flex: 1 1 260px;
+      background: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    #stats-box h2 {
+      margin-top: 0;
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+    #stats-box h3 {
+      margin: 8px 0 2px;
       font-size: 14px;
     }
-    .stats-table th, .stats-table td {
-      padding: 10px 12px;
-      text-align: center;
-      border-bottom: 1px solid #eee;
+    #stats-box p {
+      margin: 2px 0;
     }
-    .stats-table th {
-      background: #f0f4f9;
-      font-weight: 700;
-      color: #1e3a8a;
-      text-transform: uppercase;
-      font-size: 12px;
-      letter-spacing: 0.3px;
-    }
-    .stats-table tr:last-child td { border-bottom: none; }
-    .stats-table .dataset-cell {
-      text-align: left;
-      font-weight: 600;
-    }
-    .stats-table .dataset-cell .swatch {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin-right: 8px;
-      vertical-align: middle;
-    }
-    .stats-table .highlight-iqr {
-      font-size: 16px;
-      font-weight: 700;
-      color: #1e3a8a;
-    }
-
-    /* Controls */
-    .controls {
-      background: #ffffff;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-top: 14px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
-    }
-    .controls button {
-      background: #1e3a8a;
-      color: #fff;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-    }
-    .controls button:hover { background: #1e40af; }
-    .controls button.secondary {
-      background: #fff;
-      color: #1e3a8a;
-      border: 1px solid #1e3a8a;
-    }
-    .controls button.secondary:hover {
-      background: #eef4ff;
-    }
-    .controls label {
-      font-size: 13px;
-      color: #555;
-    }
-
-    /* Explainer box */
     .explain-box {
-      margin-top: 14px;
-      padding: 16px 18px;
+      margin-top: 8px;
+      padding: 12px;
       background: #eef4ff;
       border: 1px solid #c6d8ff;
       border-radius: 8px;
       font-size: 14px;
-      line-height: 1.55;
+      line-height: 1.45;
     }
     .explain-box h2 {
       margin-top: 0;
       font-size: 17px;
       color: #1e3a8a;
     }
-    .explain-box .takeaway {
-      background: #fff;
-      border-left: 4px solid #1e3a8a;
-      padding: 10px 14px;
-      margin-top: 10px;
-      border-radius: 4px;
-    }
-    .explain-box ul {
-      margin: 6px 0;
-      padding-left: 20px;
-    }
-    .explain-box li {
-      margin: 4px 0;
-    }
-    .explain-box code {
-      background: #dbeafe;
-      padding: 1px 6px;
-      border-radius: 3px;
-      font-size: 13px;
-    }
   </style>
+<style> block that automatically fixes the
+  most common mobile problems across ALL tool pages:
+
+  1. Prevents horizontal scrolling (content stays within screen)
+  2. Makes tables scroll INSIDE a wrapper (instead of bursting
+     out of the page sideways)
+  3. Enlarges tap targets (buttons, inputs) to be finger-friendly
+  4. Scales text up so it's readable without zooming
+  5. Makes sliders stretch to fit the screen width
+  6. Stacks buttons vertically when screen is narrow
+
+  WHEN TO USE:
+  Paste into the <head> (or anywhere in the file really) of each
+  tool HTML that has mobile layout issues. Same pattern as the
+  nav snippet — one-time paste per tool.
+
+  NOTE: This is safe to paste alongside the nav snippet.
+  They don't conflict.
+
+============================================================
+-->
+
+<!--BEGIN: Paste everything from here...-->
+
+<style>
+  /* =====================================================
+     Mrs. Ali's Classroom — Universal Mobile Fixes
+     ===================================================== */
+
+  /* Prevent horizontal page scrolling at all costs */
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Make ALL images, SVGs, canvases, iframes fit their container */
+  img, svg, canvas, video, iframe {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Canvases inside interactive tools sometimes have fixed pixel width.
+     Force them to respond to their parent. */
+  canvas {
+    max-width: 100% !important;
+    height: auto;
+  }
+
+  /* Wrap any <table> in an auto-scroll container.
+     The table itself scrolls inside that box, not the whole page.
+     This fixes "table overlaps other content when scrolling". */
+  @media (max-width: 768px) {
+    table {
+      display: block;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+    table thead, table tbody, table tr {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+    }
+    /* Let inputs inside tables breathe a little */
+    table input[type="text"],
+    table input[type="number"] {
+      width: 100% !important;
+      min-width: 60px;
+      box-sizing: border-box;
+    }
+  }
+
+  /* Enlarge tap targets on phones */
+  @media (max-width: 768px) {
+    button,
+    input[type="button"],
+    input[type="submit"],
+    input[type="reset"],
+    .btn, .hbtn, .pw-btn, .go-btn {
+      min-height: 44px;
+      padding: 10px 16px !important;
+      font-size: 15px !important;
+    }
+
+    /* Text inputs should be big enough to tap */
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="password"],
+    select,
+    textarea {
+      min-height: 40px;
+      font-size: 16px !important; /* prevents iOS from zooming on focus */
+      padding: 8px 10px;
+    }
+  }
+
+  /* Sliders: make them fill available width */
+  @media (max-width: 768px) {
+    input[type="range"] {
+      width: 100% !important;
+      max-width: 100%;
+      min-height: 44px; /* bigger thumb area to tap */
+    }
+  }
+
+  /* When there are multiple buttons in a row, stack them on narrow screens */
+  @media (max-width: 520px) {
+    .actions,
+    .controls,
+    .button-row,
+    .btn-row,
+    .hero-cta {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .actions button,
+    .controls button,
+    .button-row button,
+    .btn-row button,
+    .hero-cta a,
+    .hero-cta button {
+      width: 100%;
+      margin-left: 0 !important;
+    }
+  }
+
+  /* Prevent oversized fixed-width sections from overflowing */
+  @media (max-width: 768px) {
+    .wrap,
+    .container,
+    .content-wrap,
+    main,
+    section {
+      max-width: 100%;
+      padding-left: 14px;
+      padding-right: 14px;
+      box-sizing: border-box;
+    }
+    /* Don't double-pad nested elements */
+    main .wrap, section .container {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+
+  /* Make large headings scale down on small screens */
+  @media (max-width: 520px) {
+    h1 { font-size: 1.5rem !important; line-height: 1.15; }
+    h2 { font-size: 1.25rem !important; line-height: 1.2; }
+    h3 { font-size: 1.1rem !important; }
+    header h1 { font-size: 1.2rem !important; }
+  }
+
+  /* Grid layouts: collapse multi-column grids to single column */
+  @media (max-width: 768px) {
+    .row,
+    .grid,
+    .two-col,
+    .three-col,
+    .top-layout,
+    .charts-row,
+    .games-grid,
+    .paths-grid,
+    .tools-grid,
+    .trust-grid,
+    .try-grid,
+    .audience-tabs {
+      grid-template-columns: 1fr !important;
+      display: grid;
+      gap: 14px;
+    }
+  }
+
+  /* Fix common "card" patterns that have fixed widths */
+  @media (max-width: 768px) {
+    .card,
+    .kpi,
+    .chart-card,
+    .tool-card,
+    .game-card,
+    .try-card {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+  }
+
+  /* Better scroll behavior on touch */
+  @media (max-width: 768px) {
+    body {
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+
+  /* Any element that explicitly sets a fixed width beyond the screen —
+     gently cap it */
+  @media (max-width: 500px) {
+    [style*="width:"],
+    [style*="width ="] {
+      max-width: 100%;
+    }
+  }
+</style>
 </head>
 
 <body>
@@ -204,28 +281,50 @@
 
 <style>
   .mac-topnav {
-    position: sticky; top: 0; left: 0; right: 0; z-index: 99999;
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 99999;
     padding: 10px 16px;
     background: rgba(10, 10, 31, 0.94);
-    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     border-bottom: 1px solid rgba(196, 181, 253, 0.2);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "DM Sans", sans-serif;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
-    box-sizing: border-box; margin: 0;
+    box-sizing: border-box;
+    margin: 0;
   }
   .mac-home-btn {
-    display: inline-flex !important; align-items: center; gap: 8px;
-    color: #F8F9FF !important; text-decoration: none !important;
-    font-size: 14px; font-weight: 600; padding: 6px 12px; border-radius: 8px;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+    color: #F8F9FF !important;
+    text-decoration: none !important;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
     transition: background 0.2s, transform 0.2s, color 0.2s;
-    -webkit-tap-highlight-color: transparent; border: none; background: transparent;
+    -webkit-tap-highlight-color: transparent;
+    border: none;
+    background: transparent;
   }
-  .mac-home-btn:hover, .mac-home-btn:focus {
+  .mac-home-btn:hover,
+  .mac-home-btn:focus {
     background: rgba(0, 229, 255, 0.12) !important;
-    color: #00E5FF !important; outline: none;
+    color: #00E5FF !important;
+    outline: none;
   }
-  .mac-home-btn:active { transform: translateX(-2px); }
-  .mac-home-icon { width: 18px; height: 18px; flex-shrink: 0; }
+  .mac-home-btn:active {
+    transform: translateX(-2px);
+  }
+  .mac-home-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
   .mac-home-text { white-space: nowrap; }
   @media (max-width: 500px) {
     .mac-topnav { padding: 8px 12px; }
@@ -235,286 +334,32 @@
   [data-mac-legacy-hidden="true"] { display: none !important; }
 </style>
 
-<div class="content-wrap">
-
-<h1>IQR &amp; Three Histograms</h1>
-<p class="subtitle">Comparing variability: small, medium, and large interquartile range side-by-side.</p>
-
-<!-- Three histogram cards -->
-<div class="charts-row">
-  <div class="chart-card card-a">
-    <h2><span class="dot"></span>Dataset A <span class="label">Small IQR</span></h2>
-    <div id="chart-a" class="plot-area"></div>
-  </div>
-  <div class="chart-card card-b">
-    <h2><span class="dot"></span>Dataset B <span class="label">Medium IQR</span></h2>
-    <div id="chart-b" class="plot-area"></div>
-  </div>
-  <div class="chart-card card-c">
-    <h2><span class="dot"></span>Dataset C <span class="label">Large IQR</span></h2>
-    <div id="chart-c" class="plot-area"></div>
-  </div>
-</div>
-
-<!-- Stats comparison table -->
-<table class="stats-table">
-  <thead>
-    <tr>
-      <th>Dataset</th>
-      <th>N</th>
-      <th>Median</th>
-      <th>Q1</th>
-      <th>Q3</th>
-      <th>IQR</th>
-      <th>Range</th>
-      <th>Spread</th>
-    </tr>
-  </thead>
-  <tbody id="stats-tbody"></tbody>
-</table>
-
-<div class="controls">
-  <button onclick="generateData(); renderAll();">🎲 Generate new data</button>
-  <button class="secondary" onclick="renderAll();">↻ Redraw</button>
-  <label style="margin-left:auto;">Each dataset has the same mean (~50) but different spread.</label>
-</div>
-
-<!-- Explainer -->
-<div class="explain-box">
-  <h2>What students should notice</h2>
-  <ul>
-    <li><strong>Dataset A (Small IQR):</strong> Values cluster tightly around the median. The middle 50% of the data fits in a narrow range. Tall, narrow histogram.</li>
-    <li><strong>Dataset B (Medium IQR):</strong> Values are moderately spread. The middle 50% spans a wider range. More balanced shape.</li>
-    <li><strong>Dataset C (Large IQR):</strong> Values are widely spread. The middle 50% covers a large range. Flatter, wider histogram.</li>
-  </ul>
-
-  <div class="takeaway">
-    <strong>Key takeaway:</strong> The IQR measures the <strong>middle 50% spread</strong> — from Q1 (25th percentile) to Q3 (75th percentile). A small IQR means values are consistent; a large IQR means values vary a lot. Formula: <code>IQR = Q3 − Q1</code>
-  </div>
-</div>
-
-</div>
-
 <script>
-  // ============================================
-  // Data generation — three datasets, same mean, different IQRs
-  // ============================================
-  let datasetA = [], datasetB = [], datasetC = [];
-
-  // Box-Muller normal distribution generator
-  function randNormal(mean, stdDev) {
-    let u1 = 0, u2 = 0;
-    while (u1 === 0) u1 = Math.random();
-    while (u2 === 0) u2 = Math.random();
-    const z = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
-    return mean + z * stdDev;
-  }
-
-  function generateData() {
-    const n = 80;
-    const mean = 50;
-
-    // Dataset A: small spread (stdDev ~= 3) → small IQR
-    datasetA = [];
-    for (let i = 0; i < n; i++) {
-      datasetA.push(Math.round(Math.max(0, Math.min(100, randNormal(mean, 3)))));
-    }
-
-    // Dataset B: medium spread (stdDev ~= 8) → medium IQR
-    datasetB = [];
-    for (let i = 0; i < n; i++) {
-      datasetB.push(Math.round(Math.max(0, Math.min(100, randNormal(mean, 8)))));
-    }
-
-    // Dataset C: large spread (stdDev ~= 18) → large IQR
-    datasetC = [];
-    for (let i = 0; i < n; i++) {
-      datasetC.push(Math.round(Math.max(0, Math.min(100, randNormal(mean, 18)))));
-    }
-  }
-
-  // ============================================
-  // Statistics helpers
-  // ============================================
-  function percentile(sorted, p) {
-    const idx = (sorted.length - 1) * p;
-    const lo = Math.floor(idx);
-    const hi = Math.ceil(idx);
-    if (lo === hi) return sorted[lo];
-    return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
-  }
-
-  function statsFor(data) {
-    const sorted = [...data].sort((a, b) => a - b);
-    const q1 = percentile(sorted, 0.25);
-    const med = percentile(sorted, 0.5);
-    const q3 = percentile(sorted, 0.75);
-    const iqr = q3 - q1;
-    const range = sorted[sorted.length - 1] - sorted[0];
-    return {
-      n: data.length,
-      median: med.toFixed(1),
-      q1: q1.toFixed(1),
-      q3: q3.toFixed(1),
-      iqr: iqr.toFixed(1),
-      range: range.toFixed(1),
-      min: sorted[0],
-      max: sorted[sorted.length - 1]
-    };
-  }
-
-  function spreadLabel(iqr) {
-    const val = parseFloat(iqr);
-    if (val < 7) return 'tight';
-    if (val < 18) return 'moderate';
-    return 'wide';
-  }
-
-  // ============================================
-  // Rendering
-  // ============================================
-  function drawHistogram(elId, data, color, fillColor) {
-    const stats = statsFor(data);
-    const q1 = parseFloat(stats.q1);
-    const q3 = parseFloat(stats.q3);
-    const med = parseFloat(stats.median);
-
-    // Build histogram bins
-    const binSize = 3;
-    const binStart = 0;
-    const binEnd = 100;
-    const bins = [];
-    for (let i = binStart; i <= binEnd; i += binSize) {
-      bins.push({ min: i, max: i + binSize, count: 0, center: i + binSize / 2 });
-    }
-    data.forEach(v => {
-      const idx = Math.min(bins.length - 1, Math.floor((v - binStart) / binSize));
-      bins[idx].count++;
-    });
-
-    // Color bars by whether they fall in the IQR region
-    const barColors = bins.map(b => {
-      if (b.center >= q1 && b.center <= q3) return color;       // in IQR — solid color
-      return fillColor;                                          // outside IQR — faded
-    });
-
-    const trace = {
-      x: bins.map(b => b.center),
-      y: bins.map(b => b.count),
-      type: 'bar',
-      marker: { color: barColors, line: { color: color, width: 1 } },
-      hovertemplate: 'Value ~%{x}<br>Count: %{y}<extra></extra>',
-      showlegend: false,
-      width: bins.map(() => binSize * 0.95)
-    };
-
-    const maxY = Math.max(...bins.map(b => b.count)) * 1.15;
-
-    const layout = {
-      margin: { t: 10, r: 10, b: 40, l: 40 },
-      xaxis: {
-        range: [0, 100],
-        title: { text: 'Value', font: { size: 11 } },
-        zeroline: false,
-        gridcolor: '#f0f0f0'
-      },
-      yaxis: {
-        range: [0, maxY],
-        title: { text: 'Frequency', font: { size: 11 } },
-        zeroline: false,
-        gridcolor: '#f0f0f0'
-      },
-      shapes: [
-        // Q1 line
-        { type: 'line', x0: q1, x1: q1, y0: 0, y1: maxY,
-          line: { color: color, width: 2, dash: 'dash' } },
-        // Q3 line
-        { type: 'line', x0: q3, x1: q3, y0: 0, y1: maxY,
-          line: { color: color, width: 2, dash: 'dash' } },
-        // Median line
-        { type: 'line', x0: med, x1: med, y0: 0, y1: maxY,
-          line: { color: '#333', width: 2 } }
-      ],
-      annotations: [
-        { x: q1, y: maxY * 0.95, text: 'Q1', showarrow: false,
-          font: { size: 11, color: color, weight: 700 },
-          bgcolor: 'rgba(255,255,255,0.9)', borderpad: 2 },
-        { x: q3, y: maxY * 0.95, text: 'Q3', showarrow: false,
-          font: { size: 11, color: color, weight: 700 },
-          bgcolor: 'rgba(255,255,255,0.9)', borderpad: 2 },
-        { x: med, y: maxY * 0.80, text: 'Median', showarrow: false,
-          font: { size: 10, color: '#333' },
-          bgcolor: 'rgba(255,255,255,0.9)', borderpad: 2 },
-        // IQR bracket at bottom
-        { x: (q1 + q3) / 2, y: -maxY * 0.08, xref: 'x', yref: 'y',
-          text: 'IQR = ' + stats.iqr, showarrow: false,
-          font: { size: 12, color: color, weight: 700 } }
-      ],
-      plot_bgcolor: '#ffffff',
-      paper_bgcolor: '#ffffff',
-      bargap: 0.02,
-      dragmode: false
-    };
-
-    const config = {
-      displayModeBar: false,
-      responsive: true,
-      staticPlot: false
-    };
-
-    Plotly.newPlot(elId, [trace], layout, config);
-  }
-
-  function updateStatsTable() {
-    const sA = statsFor(datasetA);
-    const sB = statsFor(datasetB);
-    const sC = statsFor(datasetC);
-
-    const rows = [
-      { name: 'A (Small IQR)',  color: '#3b82f6', s: sA },
-      { name: 'B (Medium IQR)', color: '#f59e0b', s: sB },
-      { name: 'C (Large IQR)',  color: '#dc2626', s: sC }
-    ];
-
-    const html = rows.map(r => `
-      <tr>
-        <td class="dataset-cell">
-          <span class="swatch" style="background:${r.color};"></span>${r.name}
-        </td>
-        <td>${r.s.n}</td>
-        <td>${r.s.median}</td>
-        <td>${r.s.q1}</td>
-        <td>${r.s.q3}</td>
-        <td class="highlight-iqr">${r.s.iqr}</td>
-        <td>${r.s.range}</td>
-        <td>${spreadLabel(r.s.iqr)}</td>
-      </tr>
-    `).join('');
-
-    document.getElementById('stats-tbody').innerHTML = html;
-  }
-
-  function renderAll() {
-    drawHistogram('chart-a', datasetA, '#3b82f6', '#dbeafe');
-    drawHistogram('chart-b', datasetB, '#f59e0b', '#fef3c7');
-    drawHistogram('chart-c', datasetC, '#dc2626', '#fee2e2');
-    updateStatsTable();
-  }
-
-  // Legacy back-link hider (safe — only <a> tags)
   (function() {
     function hideLegacyBackLinks() {
-      var portalUrlPattern = /(math-interactives\/index\.html|\/Algebra-1\/?$|\/Algebra-1\/index\.html|\/Congruence-and-Similarity\/?$|\/Congruence-and-Similarity\/index\.html|\/Descriptive-Statistics\/?$|\/Descriptive-Statistics\/index\.html|\/Self-Regulation-Teacher-Tools\/?$|\/Self-Regulation-Teacher-Tools\/index\.html)/i;
-      var backTextPattern = /(back\s+to\s+(portal|home|main|classroom)|return\s+to|all\s+tools)/i;
-      var links = document.querySelectorAll('a');
+      var patterns = [
+        /^\s*(\u2190|<-|\u2039|\u00ab|\u2039\u2039|\u2190+|<+)\s*back/i,
+        /^\s*back\s+to\b/i,
+        /^\s*back\s*(home|$)/i,
+        /^\s*home\s*$/i,
+        /portal\s*$/i,
+        /back\s+to\s+portal/i,
+        /back\s+to\s+home/i,
+        /return\s+to/i,
+        /all\s+tools/i
+      ];
+      var links = document.querySelectorAll('a, button');
       for (var i = 0; i < links.length; i++) {
         var el = links[i];
         if (el.classList.contains('mac-home-btn')) continue;
         if (el.closest && el.closest('.mac-topnav')) continue;
-        var href = el.getAttribute('href') || '';
         var text = (el.textContent || '').trim();
-        if (portalUrlPattern.test(href) || backTextPattern.test(text)) {
-          el.setAttribute('data-mac-legacy-hidden', 'true');
+        if (!text) continue;
+        for (var j = 0; j < patterns.length; j++) {
+          if (patterns[j].test(text)) {
+            el.setAttribute('data-mac-legacy-hidden', 'true');
+            break;
+          }
         }
       }
     }
@@ -524,11 +369,285 @@
       hideLegacyBackLinks();
     }
   })();
-
-  // Initial load
-  generateData();
-  renderAll();
 </script>
+  <h1>Relationship Between Histogram, IQR, and Spread</h1>
+  <p>
+    This visualization compares three datasets with different interquartile ranges (IQRs)
+    to show how the spread of the data changes the shape of the histogram.
+  </p>
+
+  <div class="top-layout">
+    <div id="chart"></div>
+    <div id="stats-box">
+      <h2>Summary Statistics</h2>
+      <p>Loading...</p>
+    </div>
+  </div>
+
+  <!-- DESCRIPTION BOX 1 -->
+  <div class="explain-box">
+    <h2>1. What the histogram shows</h2>
+    A histogram shows how the data values are distributed.
+    Each bar tells you how many data points fall in that interval.
+    A narrow histogram means most values are close together.
+    A wide histogram means the values are spread out across many intervals.
+  </div>
+
+  <!-- DESCRIPTION BOX 2 -->
+  <div class="explain-box">
+    <h2>2. What the IQR means</h2>
+    The IQR (interquartile range) measures the middle 50 percent of the data.
+    It is the distance between the first quartile (Q1) and the third quartile (Q3).
+    A small IQR means the middle part of the data is tightly packed.
+    A large IQR means the middle part of the data is more spread out.
+  </div>
+
+  <!-- DESCRIPTION BOX 3 -->
+  <div class="explain-box">
+    <h2>3. What spread or variability means</h2>
+    Spread tells us how different the data values are from one another.
+    Low variability means the values are very similar.
+    High variability means the values are more different.
+    In this chart, a larger IQR creates a wider histogram, which means higher variability.
+  </div>
+
+  <script>
+    // -------- Helper functions --------
+    function quantile(arr, q) {
+      var sorted = arr.slice().sort(function(a, b) { return a - b; });
+      var pos = (sorted.length - 1) * q;
+      var base = Math.floor(pos);
+      var rest = pos - base;
+      return sorted[base + 1] !== undefined
+        ? sorted[base] + rest * (sorted[base + 1] - sorted[base])
+        : sorted[base];
+    }
+
+    function IQR(arr) {
+      var q1 = quantile(arr, 0.25);
+      var q3 = quantile(arr, 0.75);
+      return { q1: q1, q3: q3, iqr: q3 - q1 };
+    }
+
+    function mean(arr) {
+      var sum = 0;
+      for (var i = 0; i < arr.length; i++) {
+        sum += arr[i];
+      }
+      return sum / arr.length;
+    }
+
+    // Simple normal random (Box-Muller transform)
+    function randn() {
+      var u = 0, v = 0;
+      while (u === 0) u = Math.random();
+      while (v === 0) v = Math.random();
+      return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+    }
+
+    // -------- Three larger datasets with same center but different spreads --------
+    function makeData(meanVal, std, n) {
+      var arr = [];
+      for (var i = 0; i < n; i++) {
+        arr.push(meanVal + std * randn());
+      }
+      return arr;
+    }
+
+    var smallData  = makeData(50, 2, 300);   // small spread, small IQR
+    var mediumData = makeData(50, 5, 300);   // medium spread, medium IQR
+    var largeData  = makeData(50, 10, 300);  // large spread, large IQR
+
+    var statsSmall  = IQR(smallData);
+    var statsMedium = IQR(mediumData);
+    var statsLarge  = IQR(largeData);
+
+    statsSmall.mean  = mean(smallData);
+    statsMedium.mean = mean(mediumData);
+    statsLarge.mean  = mean(largeData);
+
+    statsSmall.median  = quantile(smallData, 0.5);
+    statsMedium.median = quantile(mediumData, 0.5);
+    statsLarge.median  = quantile(largeData, 0.5);
+
+    // -------- Histogram traces --------
+    var traceSmall = {
+      x: smallData,
+      type: "histogram",
+      opacity: 0.45,
+      name: "Small IQR",
+      marker: { color: "#1f77b4" },
+      nbinsx: 20,
+      visible: true
+    };
+
+    var traceMedium = {
+      x: mediumData,
+      type: "histogram",
+      opacity: 0.45,
+      name: "Medium IQR",
+      marker: { color: "#ff7f0e" },
+      nbinsx: 20,
+      visible: true
+    };
+
+    var traceLarge = {
+      x: largeData,
+      type: "histogram",
+      opacity: 0.45,
+      name: "Large IQR",
+      marker: { color: "#2ca02c" },
+      nbinsx: 20,
+      visible: true
+    };
+
+    // -------- Quartile lines --------
+    function makeQuartileShapes(arr, stats, color) {
+      return [
+        {
+          type: "line",
+          x0: stats.q1, x1: stats.q1,
+          y0: 0, y1: 1, yref: "paper",
+          line: { color: color, width: 2, dash: "dot" }
+        },
+        {
+          type: "line",
+          x0: quantile(arr, 0.5), x1: quantile(arr, 0.5),
+          y0: 0, y1: 1, yref: "paper",
+          line: { color: "#2563eb", width: 2, dash: "dash" }
+        },
+        {
+          type: "line",
+          x0: stats.q3, x1: stats.q3,
+          y0: 0, y1: 1, yref: "paper",
+          line: { color: color, width: 2, dash: "dot" }
+        }
+      ];
+    }
+
+    var shapesSmall  = makeQuartileShapes(smallData,  statsSmall,  "#22c55e");
+    var shapesMedium = makeQuartileShapes(mediumData, statsMedium, "#fbbf24");
+    var shapesLarge  = makeQuartileShapes(largeData,  statsLarge,  "#f97316");
+    var shapesAll    = [].concat(shapesSmall, shapesMedium, shapesLarge);
+
+    // -------- Stats box HTML --------
+    function formatStatsRow(label, stats) {
+      return (
+        "<h3>" + label + "</h3>" +
+        "<p>Mean: "   + stats.mean.toFixed(2)   + "</p>" +
+        "<p>Median: " + stats.median.toFixed(2) + "</p>" +
+        "<p>Q1: "     + stats.q1.toFixed(2)     + "</p>" +
+        "<p>Q3: "     + stats.q3.toFixed(2)     + "</p>" +
+        "<p>IQR: "    + stats.iqr.toFixed(2)    + "</p>" +
+        "<p style='margin-top:6px; font-weight:bold;'>Interpretation:</p>" +
+        "<p style='margin-top:-6px;'>A larger IQR means the data is more spread out (higher variability). A smaller IQR means the data is more tightly grouped (lower variability).</p>"
+      );
+    }
+
+    function updateStatsBox(mode) {
+      var box = document.getElementById("stats-box");
+      var html = "<h2>Summary Statistics</h2>";
+
+      if (mode === "small") {
+        html += formatStatsRow("Small IQR dataset", statsSmall);
+      } else if (mode === "medium") {
+        html += formatStatsRow("Medium IQR dataset", statsMedium);
+      } else if (mode === "large") {
+        html += formatStatsRow("Large IQR dataset", statsLarge);
+      } else { // all
+        html += formatStatsRow("Small IQR dataset", statsSmall);
+        html += formatStatsRow("Medium IQR dataset", statsMedium);
+        html += formatStatsRow("Large IQR dataset", statsLarge);
+      }
+
+      box.innerHTML = html;
+    }
+
+    // -------- Layout + Toggle Buttons --------
+    var layout = {
+      title: "Comparing Histogram Shape, IQR, and Variability (All Datasets)",
+      xaxis: { title: "Value" },
+      yaxis: { title: "Frequency" },
+      barmode: "overlay",
+      shapes: shapesAll,
+      margin: { l: 60, r: 10, t: 60, b: 40 },
+      legend: { orientation: "h", x: 0, y: 1.12 },
+      updatemenus: [
+        {
+          type: "buttons",
+          direction: "right",
+          x: 0.0,
+          y: 1.22,
+          showactive: true,
+          buttons: [
+            {
+              label: "Small IQR",
+              method: "update",
+              args: [
+                { visible: [true, false, false] },
+                {
+                  title: "Small IQR (Low Variability)",
+                  shapes: shapesSmall
+                }
+              ]
+            },
+            {
+              label: "Medium IQR",
+              method: "update",
+              args: [
+                { visible: [false, true, false] },
+                {
+                  title: "Medium IQR (Moderate Variability)",
+                  shapes: shapesMedium
+                }
+              ]
+            },
+            {
+              label: "Large IQR",
+              method: "update",
+              args: [
+                { visible: [false, false, true] },
+                {
+                  title: "Large IQR (High Variability)",
+                  shapes: shapesLarge
+                }
+              ]
+            },
+            {
+              label: "Show All",
+              method: "update",
+              args: [
+                { visible: [true, true, true] },
+                {
+                  title: "Comparing Histogram Shape, IQR, and Variability (All Datasets)",
+                  shapes: shapesAll
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    // -------- Render and hook up stats updates --------
+    Plotly.newPlot("chart", [traceSmall, traceMedium, traceLarge], layout).then(function(gd) {
+      // Default: show stats for all
+      updateStatsBox("all");
+
+      gd.on("plotly_buttonclicked", function(eventData) {
+        var label = eventData.button.label;
+        if (label === "Small IQR") {
+          updateStatsBox("small");
+        } else if (label === "Medium IQR") {
+          updateStatsBox("medium");
+        } else if (label === "Large IQR") {
+          updateStatsBox("large");
+        } else {
+          updateStatsBox("all");
+        }
+      });
+    });
+  </script>
 
 </body>
 </html>
